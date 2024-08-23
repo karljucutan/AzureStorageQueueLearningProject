@@ -12,12 +12,14 @@ namespace AzureStorageQueueLearningProject
 
             var azureStorageQueue = new AzureStorageQueue();
 
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    await azureStorageQueue.SendMessageAsyc($"Test Message {i}");
-            //}
+            for (int i = 0; i < 2; i++)
+            {
+                await azureStorageQueue.SendMessageAsyc($"Test Message {i}");
+            }
 
             await azureStorageQueue.PeekMessagesAsync(10);
+
+            //await azureStorageQueue.ReceveieMessageAsync();
         }
     }
 
@@ -35,14 +37,14 @@ namespace AzureStorageQueueLearningProject
             // If you’re dealing with binary data or non-UTF8 encoded text, Base64 encoding can be used to ensure that the data is correctly represented and transferred.
             // For instance, if you’re sending files or binary attachments through Azure Queues, you would Base64-encode the content to handle it as a text message.
             // encoded message text stored in Queue Table 
-            //var queueClientOptions = new QueueClientOptions
-            //{
-            //    MessageEncoding = QueueMessageEncoding.Base64
-            //};
-            //_client = new QueueClient(_connectionString, _queueName, queueClientOptions);
+            var queueClientOptions = new QueueClientOptions
+            {
+                MessageEncoding = QueueMessageEncoding.Base64
+            };
+            _client = new QueueClient(_connectionString, _queueName, queueClientOptions);
 
             // string message text stored in Queue Table 
-            _client = new QueueClient(_connectionString, _queueName);
+            //_client = new QueueClient(_connectionString, _queueName);
         }
 
         public async Task SendMessageAsyc(string message)
@@ -71,6 +73,27 @@ namespace AzureStorageQueueLearningProject
 
                 // Use the decoded message
                 Console.WriteLine("Decoded Message: " + decodedMessage);
+            }
+        }
+
+        public async Task ReceveieMessageAsync()
+        { 
+            var messages = await _client.ReceiveMessagesAsync(10);
+
+            foreach (var message in messages.Value)
+            {
+                Console.WriteLine($"Receive Message Id: {message.MessageId}");
+                Console.WriteLine($"Receive Message Body: {message.Body}");
+
+
+                // Decode the Base64 message
+                var messageBytes = Convert.FromBase64String(message.Body.ToString());
+
+                // Convert the bytes to a string
+                var decodedMessage = Encoding.UTF8.GetString(messageBytes);
+
+                // Use the decoded message
+                Console.WriteLine("Receive Decoded Message: " + decodedMessage);
             }
         }
     }
