@@ -17,9 +17,13 @@ namespace AzureStorageQueueLearningProject
                 await azureStorageQueue.SendMessageAsyc($"Test Message {i}");
             }
 
-            await azureStorageQueue.PeekMessagesAsync(10);
+            //await azureStorageQueue.PeekMessagesAsync(10);
 
-            //await azureStorageQueue.ReceveieMessageAsync();
+            await azureStorageQueue.GetQueueLength();
+
+            await azureStorageQueue.ReceveieMessageAsync();
+
+            await azureStorageQueue.GetQueueLength();
         }
     }
 
@@ -94,7 +98,16 @@ namespace AzureStorageQueueLearningProject
 
                 // Use the decoded message
                 Console.WriteLine("Receive Decoded Message: " + decodedMessage);
+
+                // delete. in azure function queue trigger this is already done by the azure function, no need to explicitly delete it.
+                await _client.DeleteMessageAsync(message.MessageId, message.PopReceipt);
             }
+        }
+
+        public async Task GetQueueLength()
+        {
+            var count = (await _client.GetPropertiesAsync()).Value.ApproximateMessagesCount;
+            Console.WriteLine($"ApproximateMessagesCount: {count}");
         }
     }
 }
