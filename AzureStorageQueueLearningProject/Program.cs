@@ -21,7 +21,7 @@ namespace AzureStorageQueueLearningProject
 
             await azureStorageQueue.GetQueueLength();
 
-            await azureStorageQueue.ReceveieMessageAsync();
+            //await azureStorageQueue.ReceveieMessageAsync();
 
             await azureStorageQueue.GetQueueLength();
         }
